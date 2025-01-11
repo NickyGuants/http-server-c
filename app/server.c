@@ -54,8 +54,37 @@ int main() {
 	 int connected_socket = accept(server_fd, (struct sockaddr *) &client_addr, &client_addr_len);
 	 printf("Client connected\n");
 
-	 char* res = "HTTP/1.1 200 OK\r\n\r\n";
-	 if(send(connected_socket,res,strlen(res),0) <0){
+	 // Receive Request
+	 char buffer[1024] = {0};
+	 int received = recv(connected_socket, buffer, sizeof(buffer)-1, 0);
+	 if(received > 0){
+		printf("Received request: %s\n", buffer);
+	 }
+	 
+	// Extract the Request Line
+	 char* end_of_line = strstr(buffer, "\r\n");
+	 char request_line[256] = {0};
+	 if(end_of_line){
+		strncpy(request_line, buffer, end_of_line-buffer);
+		printf("Request Line: %s\n", request_line);
+	 }
+	
+	//Parse the Request Line
+	
+	 char method[16], url[256], version[16];
+	 if(sscanf(request_line, "%15s %255s %15s", method, url, version) == 3){
+		printf("Method: %s, URL: %s, version: %s\n", method, url, version);
+	 }
+
+	 const char *response;
+	 if(strcmp(url, "/") == 0){
+	 	response = "HTTP/1.1 200 OK\r\n\r\n";
+	 }else{
+		response = "HTTP/1.1 404 Not Found\r\n\r\n";
+	 }
+
+
+	 if(send(connected_socket,response,strlen(response),0) <0){
 	 	printf("Message not sent: %s \n", strerror(errno));
 	 }  
 	 printf("Response sent to client successfully \n");
