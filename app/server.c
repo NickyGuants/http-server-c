@@ -87,7 +87,21 @@ int main() {
 		snprintf(response_buffer, sizeof(response_buffer), "HTTP/1.1 200 OK\r\n" "Content-Type: text/plain\r\n" "Content-Length: %d\r\n\r\n" "%s", content_length, echo_str);
 		response = response_buffer;	
 		
-	 }else{
+	 }else if(strcmp(url, "/user-agent")==0){
+		char *user_agent_start = strstr(buffer, "User-Agent: ");
+		if(user_agent_start){
+			user_agent_start += strlen("User-Agent: "); // move to the start of the user agent content
+			char *user_agent_end = strstr(user_agent_start, "\r\n"); // find the end of the user agent header
+			if(user_agent_end){
+				char user_agent[256] = {0};
+				strncpy(user_agent, user_agent_start, user_agent_end - user_agent_start);
+				char response_buffer[1024];
+				int content_length = strlen(user_agent);
+				snprintf(response_buffer, sizeof(response_buffer), "HTTP/1.1 200 OK\r\n" "Content-Type: text/plain\r\n" "Content-Length: %d\r\n\r\n" "%s", content_length, user_agent);
+				response = response_buffer;
+			}
+		}
+	 } else{
 		response = "HTTP/1.1 404 Not Found\r\n\r\n";
 	 }
 
