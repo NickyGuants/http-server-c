@@ -79,6 +79,14 @@ int main() {
 	 const char *response;
 	 if(strcmp(url, "/") == 0){
 	 	response = "HTTP/1.1 200 OK\r\n\r\n";
+	 }else if(strncmp(url, "/echo/", 6) == 0){
+		const char *echo_str = url +6;
+		char response_buffer[1024];
+		int content_length = strlen(echo_str);
+		
+		snprintf(response_buffer, sizeof(response_buffer), "HTTP/1.1 200 OK\r\n" "Content-Type: text/plain\r\n" "Content-Length: %d\r\n\r\n" "%s", content_length, echo_str);
+		response = response_buffer;	
+		
 	 }else{
 		response = "HTTP/1.1 404 Not Found\r\n\r\n";
 	 }
@@ -89,6 +97,7 @@ int main() {
 	 }  
 	 printf("Response sent to client successfully \n");
 
+	 close(connected_socket);
 	 close(server_fd);
 
 	return 0;
